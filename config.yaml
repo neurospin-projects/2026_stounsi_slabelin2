@@ -1,9 +1,8 @@
-# config.yaml (à la racine, à côté de main.py)
+# config.yaml 
 
 # --- Paramètres Généraux ---
-#experiment_name: "test0045_modele_transfer_seed2_ign0_weight-1_avecdice_lr5e-4_enc5e-4_r=0"
-#experiment_name: "test0047_dinov3_r0_dense_small_lr1e-4"
-experiment_name: "test0048_data_scarcity_transfer30_init_2ch"
+
+experiment_name: "test0"
 device: "cuda"
 seed: 42
 debug: False
@@ -12,14 +11,14 @@ debug: False
 paths:
   #base_dir: "/lustre/fsn1/projects/rech/tgu/uxc45lm/pclean_freesurfer"
   base_dir: "/home/st283990/pclean_freesurfer"
-  #output_dir: "/neurospin/dico/stounsi/Runs/2025_stounsi_slabeling/output/test_transfer_batches/testbatch7_dino_or_not_dino/${experiment_name}"
+ 
 
   output_dir: "/neurospin/dico/stounsi/Runs/2025_stounsi_slabeling/output/test_transfer/${experiment_name}"
   cache_dir: "/neurospin/dico/stounsi/Runs/2025_stounsi_slabeling/models/surfify_cache"
 
 cross_validation:
-  k_folds: 1      # Nombre de folds (ex: 4 pour ~12-16 sujets par fold)
-  test_ratio: 0.03     #  sujets gardés pour le Test Set final (figé)
+  k_folds: 4      # Nombre de folds (ex: 4 pour ~12-16 sujets par fold)
+  test_ratio: 0.35     #  sujets gardés pour le Test Set final (figé)
   seed: 4            # Seed critique pour que le Test Set ne change jamais
 # --- Données (Configuration du Dataset) ---
 data:
@@ -30,24 +29,21 @@ data:
   num_classes: 66
   in_channels: 2
   #sulci_to_unknown: -1
-  sulci_to_unknown : [3,6,20,40,41,50,51,57,59,60,61,64,65]
+  sulci_to_unknown : [2]
 
   split_ratio: 0.5
-  zhao_neigh: False  # Gardé si besoin pour compatibilité, mais false par défaut
+  zhao_neigh: False  
   use_lines: False
   num_workers: 1
 
-  # C'est ici qu'on définit les fichiers à aller chercher !
-  # {hemi} et {order} seront remplacés automatiquement par le code
+
   inputs:
 
-    - "{hemi}.output2_fundi_trace_prune_6.0_lsth_3.5_sceed_-0.025_nhdist_6.0{hemi}resampled{nb_vertex_thousands}k_ico{order}_closed.curv"
-    - "{hemi}.ico{order}.curv"
-    - "{hemi}.ico{order}.sulc"
+
  
 
   # Le fichier cible (ground truth)
-  target: "{hemi}.transfer2_labels_from_trace_output2_fundi_trace_prune_6.0_lsth_3.5_sceed_-0.025_nhdist_6.0{hemi}resampled{nb_vertex_thousands}k_ico{order}_closed.curv"
+  target: 
 
 
   # --- Augmentations ---
@@ -78,7 +74,7 @@ data:
 #   name: "SPHARM_Net"
 
 #   params:
-#     # Utilisation d'une variable Hydra pour le chemin
+#    
 #     C: 64
 #     L: 80
 #     D: 4
@@ -91,16 +87,13 @@ data:
 
 
 model:
-  name: "PretrainedUNet" # Nouveau nom pour la factory
+  name: "PretrainedUNet" 
   params:
-    #pretrained_ckpt: "/neurospin/dico/stounsi/Runs/2025_stounsi_spherical_ssl/outputs/2026-02-08/14-18-51/logs/retest_run9_right_hemisphereico6_sex_age_optimized/version_0/checkpoints/best_model-epoch=04-probe/PCS_Classification_Global=0.6298.ckpt" 
 
-    #pretrained_ckpt: "/neurospin/dico/stounsi/Runs/2025_stounsi_spherical_ssl/outputs/2026-02-06/16-50-28/logs/retest_run9_right_hemisphereico6_sex_age_optimized/version_0/checkpoints/last.ckpt"
-    pretrained_ckpt: "/neurospin/dico/stounsi/Runs/2025_stounsi_spherical_ssl/outputs/2026-01-29/17-03-33/logs/retest_run21_right_hemisphereico6/version_0/checkpoints/best_model-epoch=139-probe/PCS_Classification_Global=0.9232.ckpt"
-    #pretrained_ckpt: "/neurospin/dico/stounsi/Runs/2025_stounsi_spherical_ssl/outputs/2026-01-31/12-11-05/logs/retest_run21_right_hemisphereico6_big_model/version_0/checkpoints/last.ckpt"
-    #pretrained_ckpt: "/neurospin/dico/stounsi/Runs/2025_stounsi_spherical_ssl/outputs/2025-12-16/16-59-50/logs/batch700_faltten_avec_normlaization_et_avec_vgg1024_right_hemisphere/version_0/checkpoints/last.ckpt"
+    pretrained_ckpt: 
+
     freeze_encoder: False
-    use_3_channels: False
+    use_3_channels: True
     dropout: 0.25
     use_skip_adapter: False
     
@@ -112,24 +105,24 @@ model:
       num_blocks: 5
       pooling_type: "max"
       conv_mode: "DiNe"
-      # Global pooling ne sert qu'à l'init, on peut le laisser ici ou le hardcoder
+    
       global_pooling: "flatten" 
       standard_ico: True
   
 # model:
 #   name: "SphericalDinoV2"
 #   params:
-#     img_size: 910         # 518 est natif pour DINOv2. (518² > 42k, donc c'est parfait)
-#     dino_version: "dinov2_vitb14"  # Le plus petit (vits14) est déjà très puissant. 
-#                                    # Attention: "vitb14" (Base) demande beaucoup plus de VRAM.
+#     img_size: 910         
+#     dino_version: "dinov2_vitb14"  
+#                                    
 #     unfreeze_blocks: 2
 
 # model:
 #   name: "SphericalDinoV3Linear"
 #   params:
-#     img_size: 528         # 518 est natif pour DINOv2. (518² > 42k, donc c'est parfait)
-#     dino_version: "facebook/dinov3-vits16-pretrain-lvd1689m" # Le plus petit (vits14) est déjà très puissant. 
-#                                    # Attention: "vitb14" (Base) demande beaucoup plus de VRAM.
+#     img_size: 528         
+#     dino_version: "facebook/dinov3-vits16-pretrain-lvd1689m" 
+#                                    
 #     unfreeze_blocks: 2
 
 # model:
@@ -138,17 +131,8 @@ model:
 #     img_size: 528 # Multiple parfait de 16x3
 #     #ID Hugging Face officiel
 #     # dino_version: "facebook/dinov3-vits16-pretrain-lvd1689m" 
-#     # # Ou pour le modèle Base (plus gros) :
+#
 #     dino_version: "facebook/dinov3-vitb16-pretrain-lvd1689m"
-
-#resume_path: "/neurospin/dico/stounsi/Runs/2025_stounsi_slabeling/output/test_transfer/testbatch2/RND219_3ch_lr0.005_ep350_pG0.5_pI0.8_ns0.01_rot0.05_frz0_dice_ce_ign-1_wYes/best_model.pth"
-#resume_path: "/neurospin/dico/stounsi/Runs/2025_stounsi_slabeling/output/test_transfer/testbatch4/RND195_2Ch_LinesFalse_FreezeFalse_Drop0.25_WDecay0.0001_LR0.0001_EncLR0.0001_Pat10_UnkList_ProbGeo0.5_ProbInt0.5_Noise0.01_Rot0.1_IgnIdx2_WeightedTrue/best_model.pth"
-#resume_path: "/neurospin/dico/stounsi/Runs/2025_stounsi_slabeling/output/test_transfer/testbatch4/RND167_3Ch_LinesTrue_FreezeFalse_Drop0.4_WDecay0.01_LR0.0005_EncLR0.0001_UnkList_ProbGeo0.8_ProbInt0.8_Noise0.05_Rot0.1_IgnIdx0_WeightedTrue/best_model.pth"
-#RND220_3Ch_LinesTrue_FreezeFalse_Drop0.4_WDecay0.01_LR0.005_EncLR0.0001_UnkList_ProbGeo0.8_ProbInt0.8_Noise0.1_Rot0.1_IgnIdx0_WeightedFalse/
-#RND59_3Ch_LinesTrue_FreezeTrue_Drop0.25_WDecay0.001_LR0.0001_Pat10_UnkList_ProbGeo0.5_ProbInt0.5_Noise0.1_Rot0.05_IgnIdx2_WeightedTrue
-#resume_path: "/neurospin/dico/stounsi/Runs/2025_stounsi_slabeling/output/test_transfer/testbatch4/RND59_3Ch_LinesTrue_FreezeTrue_Drop0.25_WDecay0.001_LR0.0001_Pat10_UnkList_ProbGeo0.5_ProbInt0.5_Noise0.1_Rot0.05_IgnIdx2_WeightedTrue/best_model.pth"
-#resume_path: "/neurospin/dico/stounsi/Runs/2025_stounsi_slabeling/output/test_transfer/test0046_ch16_lr5e-4_dice_0weIGHTED_r1.0_WD1e-4/best_model.pth"
-#resume_path: "/neurospin/dico/stounsi/Runs/2025_stounsi_slabeling/output/test_transfer/test0045_modele_transfer_seed2_ign0_weight-1_avecdice_lr5e-4_enc5e-4_r=0/best_model.pth"
 
 training:
   lr: 1e-4
@@ -157,12 +141,12 @@ training:
   epochs: 500
   post_train: True 
 
-  early_stopping_patience: 8 #nombre de validation a attendre et pas forcement nombre d'epochs 
+  early_stopping_patience: 8 
   early_stopping_min_delta: 0.01
   
-  # Ce qu'on surveille : "loss", "iou", ou "dice"
-  monitor_metric: "dice"  # <-- Change ici selon ta préférence (souvent iou ou dice)
-  monitor_mode: "max"    # <-- "min" pour loss, "max" pour iou/dice
+  #
+  monitor_metric: "dice"  
+  monitor_mode: "max"   
 
   save_freq: 80
   log_freq: 1
