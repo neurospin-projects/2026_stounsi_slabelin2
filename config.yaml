@@ -1,63 +1,61 @@
 # config.yaml 
 
-# --- Paramètres Généraux ---
+# --- General Parameters ---
 
 experiment_name: "test0"
 device: "cuda"
 seed: 42
 debug: False
 
-# --- Chemins ---
+# --- Paths ---
 paths:
   #base_dir: "/lustre/fsn1/projects/rech/tgu/uxc45lm/pclean_freesurfer"
   base_dir: "/home/st283990/pclean_freesurfer"
  
-
   output_dir: "/neurospin/dico/stounsi/Runs/2025_stounsi_slabeling/output/test_transfer/${experiment_name}"
   cache_dir: "/neurospin/dico/stounsi/Runs/2025_stounsi_slabeling/models/surfify_cache"
 
 cross_validation:
-  k_folds: 4      # Nombre de folds (ex: 4 pour ~12-16 sujets par fold)
-  test_ratio: 0.35     #  sujets gardés pour le Test Set final (figé)
-  seed: 4            # Seed critique pour que le Test Set ne change jamais
-# --- Données (Configuration du Dataset) ---
+  k_folds: 4           # Number of folds (e.g., 4 for ~12-16 subjects per fold)
+  test_ratio: 0.35     # Subjects kept for the final Test Set (fixed)
+  seed: 4              # Critical seed to ensure the Test Set never changes
+
+# --- Data (Dataset Configuration) ---
 data:
   hemisphere: "rh"
   ico_order: 6
-  nb_vertex_thousands: 40 #(10k for ico5 , 40k for ico6 ,  168k for ico7)
+  nb_vertex_thousands: 40 # (10k for ico5, 40k for ico6, 168k for ico7)
   batch_size: 10
   num_classes: 66
-  in_channels: 2
-  #sulci_to_unknown: -1
-  sulci_to_unknown : [2]
+  in_channels: 3          # Updated to 3 to match the inputs below
+  sulci_to_unknown: -1
+  # To ignore non-consistent sulci:
+  # sulci_to_unknown : [3,6,20,40,41,50,51,57,59,60,61,64,65]
 
   split_ratio: 0.5
   zhao_neigh: False  
-  use_lines: False
+  use_lines: True         # Set to True to use the sulcal lines channel
   num_workers: 1
 
-
+  # Flexible inputs: First channel is reserved for sulcal lines (fundi)
   inputs:
+    -
 
-
- 
-
-  # Le fichier cible (ground truth)
+  # The target file (ground truth)
   target: 
-
 
   # --- Augmentations ---
   augmentations:
-    # Probabilités globales
+    # Global probabilities
     prob_geometric: 0.8   # Rotation
-    prob_intensity: 0.8   # Bruit/Scale
+    prob_intensity: 0.8   # Noise/Scale
 
-    # Paramètres
-    noise_sigma: 0.1    # Ecart-type du bruit gaussien
-    scale_limit: 0.1      # +/- 10% de scaling (0.9 à 1.1)
-    rotate_angle_std: 0.0 # En radians (~30 deg). Si None, utilise pi/6 par défaut
+    # Parameters
+    noise_sigma: 0.1      # Standard deviation of Gaussian noise
+    scale_limit: 0.1      # +/- 10% scaling (0.9 to 1.1)
+    rotate_angle_std: 0.01 # In radians (~30 deg). If None, defaults to pi/6
 
-# --- Modèle ---
+# --- Models ---
 
 # model:
 #   name: "SphericalUNet"
@@ -97,7 +95,7 @@ model:
     dropout: 0.25
     use_skip_adapter: False
     
-    # Paramètres du décodeur (doivent être cohérents avec l'encodeur)
+    # decoder params (coherent wwith encoder)
 
 
     backbone_params:
@@ -128,7 +126,7 @@ model:
 # model:
 #   name: "SphericalDinoV3"
 #   params:
-#     img_size: 528 # Multiple parfait de 16x3
+#     img_size: 528 # perfect multiple of 16*3
 #     #ID Hugging Face officiel
 #     # dino_version: "facebook/dinov3-vits16-pretrain-lvd1689m" 
 #
